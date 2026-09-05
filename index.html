@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ゴルフ上達に役立つYouTube動画をカテゴリー別に探せる動画まとめナビ">
+  <!-- GA4: G-XXXXXXXXXX をご自身の測定IDに置き換えてください。 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  <title>ゴルフ動画まとめナビ</title>
+  <style>
+    :root {
+      --green-950: #12352a;
+      --green-800: #1f6045;
+      --green-700: #247451;
+      --green-500: #43a86e;
+      --green-100: #e4f2e8;
+      --green-50: #f3faf5;
+      --ink: #18312a;
+      --muted: #6d8178;
+      --line: #dce8df;
+      --white: #fff;
+      --shadow: 0 14px 32px rgba(25, 74, 49, .09);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--green-50);
+      font-family: "Avenir Next", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      position: relative;
+      overflow: hidden;
+      color: var(--white);
+      background: var(--green-950);
+      isolation: isolate;
+    }
+
+    header::before {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      opacity: .62;
+      background: radial-gradient(circle at 84% 18%, rgba(86, 184, 119, .42), transparent 34%), linear-gradient(118deg, var(--green-950) 8%, #1a5740 58%, #397f53 100%);
+    }
+
+    header::after {
+      position: absolute;
+      right: -80px;
+      bottom: -125px;
+      z-index: -1;
+      width: 410px;
+      height: 410px;
+      content: "";
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 50%;
+      box-shadow: 0 0 0 46px rgba(255, 255, 255, .035), 0 0 0 92px rgba(255, 255, 255, .025);
+    }
+
+    .header-inner, main { width: min(1120px, calc(100% - 40px)); margin: auto; }
+    .header-inner { padding: 54px 0 58px; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 19px;
+      color: #bce8c9;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .14em;
+    }
+
+    .eyebrow::before { width: 26px; height: 2px; content: ""; background: #79d294; }
+    h1 { max-width: 660px; margin: 0; font-size: clamp(2.1rem, 5vw, 4.2rem); line-height: 1.12; letter-spacing: .02em; }
+    .lead { max-width: 510px; margin: 19px 0 0; color: #d4ebdb; font-size: 15px; line-height: 1.9; }
+    main { padding: 42px 0 72px; }
+
+    .toolbar { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+    .section-label { margin: 0 0 5px; color: var(--green-700); font-size: 12px; font-weight: 800; letter-spacing: .12em; }
+    h2 { margin: 0; font-size: clamp(1.45rem, 3vw, 2rem); letter-spacing: .02em; }
+    .count { margin: 0; color: var(--muted); font-size: 13px; white-space: nowrap; }
+
+    .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 12px; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: 0 0 auto; padding: 11px 17px; border: 1px solid var(--line); border-radius: 999px; color: var(--green-800); background: var(--white); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: .2s ease; }
+    .tab:hover { border-color: var(--green-500); transform: translateY(-1px); }
+    .tab[aria-selected="true"] { border-color: var(--green-800); color: var(--white); background: var(--green-800); box-shadow: 0 7px 16px rgba(31, 96, 69, .2); }
+
+    .video-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+    .video-card { overflow: hidden; border: 1px solid rgba(220, 232, 223, .95); border-radius: 14px; background: var(--white); box-shadow: var(--shadow); transition: transform .25s ease, box-shadow .25s ease; }
+    .video-card:hover { transform: translateY(-5px); box-shadow: 0 20px 36px rgba(25, 74, 49, .15); }
+    .video-card a { display: block; color: inherit; text-decoration: none; }
+    .thumbnail-wrap { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #dbeadf; }
+    .thumbnail-wrap img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+    .video-card:hover img { transform: scale(1.04); }
+    .play { position: absolute; right: 14px; bottom: 13px; display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; color: var(--green-950); background: rgba(255,255,255,.92); font-size: 14px; box-shadow: 0 3px 10px rgba(0,0,0,.16); }
+    .card-body { padding: 17px 18px 19px; }
+    .tag { display: inline-block; margin-bottom: 10px; padding: 5px 9px; border-radius: 5px; color: var(--green-700); background: var(--green-100); font-size: 11px; font-weight: 800; }
+    .video-title { min-height: 3.2em; margin: 0; font-size: 16px; line-height: 1.6; }
+    .channel { margin: 9px 0 0; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .description { margin: 13px 0 0; padding-top: 13px; border-top: 1px solid #edf3ee; color: #587066; font-size: 12px; line-height: 1.7; }
+    .empty { grid-column: 1 / -1; padding: 40px 20px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; background: var(--white); }
+    .add-panel { margin: 0 0 38px; padding: 25px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); box-shadow: var(--shadow); }
+    .add-panel h2 { margin-bottom: 5px; font-size: 1.35rem; }
+    .form-note { margin: 0 0 18px; color: var(--muted); font-size: 12px; }
+    .video-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label { color: var(--green-800); font-size: 12px; font-weight: 800; }
+    .field input, .field select, .field textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fbfefc; font: inherit; font-size: 13px; outline: none; }
+    .field textarea { min-height: 76px; resize: vertical; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(67, 168, 110, .14); }
+    .field-wide { grid-column: 1 / -1; }
+    .form-actions { display: flex; align-items: center; gap: 14px; grid-column: 1 / -1; }
+    .add-button { padding: 12px 22px; border: 0; border-radius: 8px; color: var(--white); background: var(--green-800); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+    .add-button:hover { background: var(--green-700); transform: translateY(-1px); }
+    .form-message { margin: 0; color: var(--green-700); font-size: 12px; }
+    .category-panel { margin-top: 16px; padding-top: 18px; border-top: 1px solid #edf3ee; }
+    .category-form { display: flex; gap: 10px; }
+    .category-form input { flex: 1; min-width: 0; }
+    .category-form input, .edit-form input, .edit-form select, .edit-form textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fbfefc; font: inherit; font-size: 13px; outline: none; }
+    .category-form input:focus, .edit-form input:focus, .edit-form select:focus, .edit-form textarea:focus { border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(67, 168, 110, .14); }
+    .category-button, .save-button { padding: 11px 16px; border: 0; border-radius: 8px; color: var(--white); background: var(--green-700); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .card-actions { display: flex; gap: 8px; margin-top: 15px; }
+    .card-action { flex: 1; padding: 9px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--green-800); background: var(--green-50); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .card-action.delete { color: #a94e48; background: #fff7f6; }
+    dialog { width: min(520px, calc(100% - 28px)); padding: 0; border: 0; border-radius: 14px; color: var(--ink); box-shadow: 0 24px 70px rgba(9, 35, 23, .28); }
+    dialog::backdrop { background: rgba(10, 35, 25, .58); }
+    .edit-dialog { padding: 25px; }
+    .edit-dialog h2 { margin-bottom: 18px; font-size: 1.3rem; }
+    .edit-form { display: grid; gap: 13px; }
+    .edit-form label { display: grid; gap: 7px; color: var(--green-800); font-size: 12px; font-weight: 800; }
+    .edit-form textarea { min-height: 90px; resize: vertical; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 4px; }
+    .cancel-button { padding: 10px 15px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: var(--white); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+    [hidden] { display: none !important; }
+    footer { padding: 25px 20px; color: #91a99b; background: var(--green-950); font-size: 11px; text-align: center; }
+
+    @media (max-width: 800px) {
+      .video-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .header-inner { padding-top: 43px; }
+    }
+    @media (max-width: 560px) {
+      .header-inner, main { width: min(100% - 28px, 1120px); }
+      .header-inner { padding: 37px 0 42px; }
+      h1 { font-size: 2.25rem; }
+      .lead { font-size: 13px; }
+      main { padding-top: 32px; }
+      .toolbar { align-items: start; flex-direction: column; gap: 7px; }
+      .video-grid { grid-template-columns: 1fr; gap: 16px; }
+      .video-title { min-height: auto; }
+      .add-panel { padding: 20px 16px; }
+      .video-form { grid-template-columns: 1fr; }
+      .field-wide, .form-actions { grid-column: auto; }
+      .category-form { align-items: stretch; flex-direction: column; }
+      .category-button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <p class="eyebrow">GOLF VIDEO CURATION</p>
+      <h1>ゴルフ動画<br>まとめナビ</h1>
+      <p class="lead">スイング、飛距離、ショートゲーム、ギア選び。今のあなたに役立つ動画を、見つけやすくまとめました。</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="add-panel" id="adminPanel" aria-labelledby="add-video-heading" hidden>
+      <p class="section-label">SHARE A VIDEO</p>
+      <h2 id="add-video-heading">おすすめ動画を追加する</h2>
+      <p class="form-note">YouTubeの動画URLを登録すると、一覧にすぐ反映されます。</p>
+      <form class="video-form" id="videoForm">
+        <div class="field field-wide">
+          <label for="videoTitle">動画タイトル</label>
+          <input id="videoTitle" name="title" type="text" placeholder="例：初心者向けスイングレッスン" required>
+        </div>
+        <div class="field">
+          <label for="videoUrl">YouTube URL</label>
+          <input id="videoUrl" name="url" type="url" placeholder="https://www.youtube.com/watch?v=..." required>
+        </div>
+        <div class="field">
+          <label for="videoCategory">カテゴリー</label>
+          <select id="videoCategory" name="category" required>
+            <option value="スイング改善">スイング改善</option>
+            <option value="飛距離アップ">飛距離アップ</option>
+            <option value="パター・アプローチ">パター・アプローチ</option>
+            <option value="ギア紹介">ギア紹介</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="channelName">チャンネル名</label>
+          <input id="channelName" name="channel" type="text" placeholder="例：ゴルフレッスンチャンネル" required>
+        </div>
+        <div class="field">
+          <label for="videoDescription">解説メモ</label>
+          <textarea id="videoDescription" name="description" placeholder="この動画のおすすめポイントを入力" required></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="add-button" id="videoSubmitButton" type="submit">動画を追加する</button>
+          <button class="cancel-button" id="videoCancelButton" type="button" hidden>編集をキャンセル</button>
+          <p class="form-message" id="formMessage" aria-live="polite"></p>
+        </div>
+      </form>
+      <div class="category-panel">
+        <p class="section-label">CATEGORY SETTINGS</p>
+        <form class="category-form" id="categoryForm">
+          <input id="newCategory" type="text" maxlength="30" placeholder="新しいカテゴリー名" required>
+          <button class="category-button" type="submit">カテゴリー追加</button>
+        </form>
+        <p class="form-message" id="categoryMessage" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <div>
+        <p class="section-label">EXPLORE VIDEOS</p>
+        <h2>気になるテーマから探す</h2>
+      </div>
+      <p class="count" id="videoCount" aria-live="polite"></p>
+    </div>
+    <nav class="tabs" aria-label="動画カテゴリー" role="tablist">
+      <button class="tab" type="button" role="tab" aria-selected="true" data-category="すべて">すべて</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-category="スイング改善">スイング改善</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-category="飛距離アップ">飛距離アップ</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-category="パター・アプローチ">パター・アプローチ</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-category="ギア紹介">ギア紹介</button>
+    </nav>
+    <section class="video-grid" id="videoGrid" aria-live="polite"></section>
+  </main>
+
+  <footer id="siteFooter">ゴルフ動画まとめナビ ｜ あなたのゴルフ時間を、もっと実りあるものに。</footer>
+
+  <dialog id="editDialog">
+    <div class="edit-dialog">
+      <h2>動画を編集する</h2>
+      <form class="edit-form" id="editForm">
+        <label for="editTitle">動画タイトル<input id="editTitle" name="title" type="text" required></label>
+        <label for="editUrl">YouTube URL<input id="editUrl" name="url" type="url" required></label>
+        <label for="editCategory">カテゴリー<select id="editCategory" name="category" required></select></label>
+        <label for="editDescription">解説メモ<textarea id="editDescription" name="description" required></textarea></label>
+        <div class="dialog-actions">
+          <button class="cancel-button" id="editCancelButton" type="button">キャンセル</button>
+          <button class="save-button" type="submit">変更を保存</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <script>
+    const STORAGE_KEYS = { videos: 'golfVideoNavVideos', categories: 'golfVideoNavCategories' };
+    const ADMIN_PASSWORD = '1234';
+    const DEFAULT_CATEGORIES = ['スイング改善', '飛距離アップ', 'パター・アプローチ', 'ギア紹介'];
+    const DEFAULT_VIDEOS = [
+      { category: 'スイング改善', title: '正しいスイングの基本を身につける練習法', channel: 'UUUM GOLF', url: 'https://www.youtube.com/watch?v=5Z7nK4m3X9Q', image: 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?auto=format&fit=crop&w=900&q=85', description: 'アドレスからフィニッシュまで、まず押さえたい基本を丁寧に確認。' },
+      { category: 'スイング改善', title: 'ミート率が上がる！再現性の高いスイング', channel: 'ゴルフレッスン動画 Tera-You-Golf', url: 'https://www.youtube.com/watch?v=8x7Qp2LmR4A', image: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=900&q=85', description: '力みを減らし、毎回同じインパクトを作るためのチェックポイント。' },
+      { category: '飛距離アップ', title: 'ドライバーの飛距離を伸ばす3つのコツ', channel: 'GOLFavo ゴルフアボ', url: 'https://www.youtube.com/watch?v=3nV6kP1sT8E', image: 'https://images.unsplash.com/photo-1592919505780-303950717480?auto=format&fit=crop&w=900&q=85', description: 'ヘッドスピードだけに頼らず、効率よく飛ばす動きを学べます。' },
+      { category: '飛距離アップ', title: '飛ばしのための体の使い方を徹底解説', channel: 'Golf Digest Japan', url: 'https://www.youtube.com/watch?v=7bM2qL9cH5F', image: 'https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?auto=format&fit=crop&w=900&q=85', description: '下半身と上半身の連動を、わかりやすいドリルで体感。' },
+      { category: 'パター・アプローチ', title: '寄せワン率が変わるアプローチの基本', channel: '中井学ゴルフチャンネル', url: 'https://www.youtube.com/watch?v=2jR8wN6dK3B', image: 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?auto=format&fit=crop&w=900&q=85', description: '距離感とミスの傾向を整えて、グリーン周りの苦手を克服。' },
+      { category: 'ギア紹介', title: '今選びたいゴルフクラブの選び方', channel: 'Golf Gear Dots', url: 'https://www.youtube.com/watch?v=6cY4pR8mV2L', image: 'https://images.unsplash.com/photo-1556373883-0c3b2b5c7c31?auto=format&fit=crop&w=900&q=85', description: 'スペック表だけではわからない、クラブ選びの見方を紹介。' }
+    ];
+
+    const grid = document.querySelector('#videoGrid');
+    const count = document.querySelector('#videoCount');
+    const adminPanel = document.querySelector('#adminPanel');
+    const siteFooter = document.querySelector('#siteFooter');
+    const videoForm = document.querySelector('#videoForm');
+    const videoSubmitButton = document.querySelector('#videoSubmitButton');
+    const videoCancelButton = document.querySelector('#videoCancelButton');
+    const formMessage = document.querySelector('#formMessage');
+    const categoryForm = document.querySelector('#categoryForm');
+    const categoryMessage = document.querySelector('#categoryMessage');
+    const editDialog = document.querySelector('#editDialog');
+    const editForm = document.querySelector('#editForm');
+    const editCategory = document.querySelector('#editCategory');
+    const editCancelButton = document.querySelector('#editCancelButton');
+    let categories = loadCategories();
+    let videos = loadVideos();
+    let activeCategory = 'すべて';
+    let editingId = null;
+    let isAdmin = false;
+    let footerClickCount = 0;
+    let footerClickTimer;
+
+    function createId() {
+      return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function loadCategories() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.categories));
+        return Array.isArray(saved) && saved.length ? [...new Set([...DEFAULT_CATEGORIES, ...saved])] : [...DEFAULT_CATEGORIES];
+      } catch (error) {
+        return [...DEFAULT_CATEGORIES];
+      }
+    }
+
+    function loadVideos() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.videos));
+        if (Array.isArray(saved)) return saved.map(video => ({ ...video, id: video.id || createId() }));
+      } catch (error) {
+        // localStorageが利用できない場合は初期データを表示する
+      }
+      return DEFAULT_VIDEOS.map(video => ({ ...video, id: createId() }));
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEYS.videos, JSON.stringify(videos));
+      localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(categories));
+    }
+
+    function getYouTubeId(url) {
+      try {
+        const parsedUrl = new URL(url);
+        if (!['www.youtube.com', 'youtube.com', 'm.youtube.com', 'youtu.be'].includes(parsedUrl.hostname)) return null;
+        if (parsedUrl.hostname === 'youtu.be') return parsedUrl.pathname.slice(1).split('/')[0] || null;
+        if (parsedUrl.pathname === '/watch') return parsedUrl.searchParams.get('v');
+        if (parsedUrl.pathname.startsWith('/shorts/')) return parsedUrl.pathname.split('/')[2] || null;
+        if (parsedUrl.pathname.startsWith('/embed/')) return parsedUrl.pathname.split('/')[2] || null;
+        return null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+    }
+
+    function renderTabs() {
+      const tabItems = ['すべて', ...categories];
+      document.querySelector('.tabs').innerHTML = tabItems.map(category => `
+        <button class="tab" type="button" role="tab" aria-selected="${category === activeCategory}" data-category="${escapeHtml(category)}">${escapeHtml(category)}</button>
+      `).join('');
+    }
+
+    function renderCategoryOptions() {
+      const options = categories.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('');
+      document.querySelector('#videoCategory').innerHTML = options;
+      editCategory.innerHTML = options;
+    }
+
+    function render(category = activeCategory) {
+      activeCategory = category;
+      renderTabs();
+      renderCategoryOptions();
+      const filtered = category === 'すべて' ? videos : videos.filter(video => video.category === category);
+      count.textContent = `${filtered.length}本の動画`;
+      grid.innerHTML = filtered.length ? filtered.map(video => `
+        <article class="video-card">
+          <a href="${escapeHtml(video.url)}" target="_blank" rel="noopener noreferrer">
+            <div class="thumbnail-wrap">
+              <img src="${escapeHtml(video.image)}" alt="${escapeHtml(video.title)}のサムネイル" loading="lazy">
+              <span class="play" aria-hidden="true">▶</span>
+            </div>
+            <div class="card-body">
+              <span class="tag">${escapeHtml(video.category)}</span>
+              <h3 class="video-title">${escapeHtml(video.title)}</h3>
+              <p class="channel">${escapeHtml(video.channel)}</p>
+              <p class="description">${escapeHtml(video.description)}</p>
+              ${isAdmin ? `<div class="card-actions"><button class="card-action edit" type="button" data-id="${video.id}">編集</button><button class="card-action delete" type="button" data-id="${video.id}">削除</button></div>` : ''}
+            </div>
+          </a>
+        </article>
+      `).join('') : '<p class="empty">このカテゴリーの動画はありません。</p>';
+    }
+
+    function setAdminMode(value) {
+      isAdmin = value;
+      document.body.classList.toggle('is-admin', isAdmin);
+      adminPanel.hidden = !isAdmin;
+      if (!isAdmin) closeEditDialog();
+      render(activeCategory);
+    }
+
+    function resetVideoForm() {
+      videoForm.reset();
+      editingId = null;
+      videoSubmitButton.textContent = '動画を追加する';
+      videoCancelButton.hidden = true;
+      formMessage.textContent = '';
+    }
+
+    function closeEditDialog() {
+      if (editDialog.open) editDialog.close();
+      editingId = null;
+    }
+
+    document.querySelector('.tabs').addEventListener('click', event => {
+      const tab = event.target.closest('.tab');
+      if (tab) render(tab.dataset.category);
+    });
+
+    siteFooter.addEventListener('click', () => {
+      footerClickCount += 1;
+      clearTimeout(footerClickTimer);
+      footerClickTimer = setTimeout(() => { footerClickCount = 0; }, 1500);
+      if (footerClickCount !== 5) return;
+      footerClickCount = 0;
+      const password = window.prompt('管理者パスワードを入力してください');
+      if (password === ADMIN_PASSWORD) {
+        setAdminMode(true);
+      } else if (password !== null) {
+        window.alert('パスワードが正しくありません。');
+      }
+    });
+
+    videoForm.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!isAdmin) return;
+      const formData = new FormData(videoForm);
+      const url = formData.get('url').trim();
+      const videoId = getYouTubeId(url);
+      if (!videoId) {
+        formMessage.textContent = '有効なYouTube動画URLを入力してください。';
+        formMessage.style.color = '#b34b45';
+        return;
+      }
+      videos.unshift({ id: createId(), category: formData.get('category'), title: formData.get('title').trim(), channel: formData.get('channel').trim(), url, image: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`, description: formData.get('description').trim() });
+      saveData();
+      resetVideoForm();
+      formMessage.textContent = '動画を一覧に追加しました。';
+      render(activeCategory);
+    });
+
+    videoCancelButton.addEventListener('click', resetVideoForm);
+
+    categoryForm.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!isAdmin) return;
+      const input = document.querySelector('#newCategory');
+      const category = input.value.trim();
+      if (!category) return;
+      if (categories.includes(category)) {
+        categoryMessage.textContent = 'そのカテゴリーはすでに存在します。';
+        categoryMessage.style.color = '#b34b45';
+        return;
+      }
+      categories.push(category);
+      saveData();
+      input.value = '';
+      categoryMessage.textContent = 'カテゴリーを追加しました。';
+      categoryMessage.style.color = 'var(--green-700)';
+      render(activeCategory);
+    });
+
+    grid.addEventListener('click', event => {
+      const action = event.target.closest('.card-action');
+      if (!action || !isAdmin) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const video = videos.find(item => item.id === action.dataset.id);
+      if (!video) return;
+      if (action.classList.contains('delete')) {
+        if (!window.confirm(`「${video.title}」を削除しますか？`)) return;
+        videos = videos.filter(item => item.id !== video.id);
+        saveData();
+        render(activeCategory);
+        return;
+      }
+      editingId = video.id;
+      editForm.title.value = video.title;
+      editForm.url.value = video.url;
+      editCategory.value = video.category;
+      editForm.description.value = video.description;
+      editDialog.showModal();
+    });
+
+    editCancelButton.addEventListener('click', closeEditDialog);
+
+    editForm.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!isAdmin || !editingId) return;
+      const formData = new FormData(editForm);
+      const url = formData.get('url').trim();
+      const videoId = getYouTubeId(url);
+      if (!videoId) {
+        window.alert('有効なYouTube動画URLを入力してください。');
+        return;
+      }
+      const video = videos.find(item => item.id === editingId);
+      if (video) {
+        video.title = formData.get('title').trim();
+        video.url = url;
+        video.category = formData.get('category');
+        video.description = formData.get('description').trim();
+        video.image = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        saveData();
+      }
+      closeEditDialog();
+      render(activeCategory);
+    });
+
+    render();
+  </script>
+</body>
+</html>
