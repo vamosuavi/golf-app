@@ -445,7 +445,10 @@
 
     function normalizeExternalUrl(value) {
       const url = String(value || '').trim();
-      return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+      if (!url) return '';
+      const scheme = url.match(/^https?:\/\//i);
+      const withoutRepeatedSchemes = url.replace(/^(?:(?:https?):\/\/)+/i, '');
+      return `${scheme ? scheme[0].toLowerCase() : 'https://'}${withoutRepeatedSchemes}`;
     }
 
     function renderTabs() {
@@ -470,7 +473,7 @@
             <p>${escapeHtml(ad.description || '')}</p>
           </div>
           ${ad.imageUrl ? `<img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.title)}" loading="lazy">` : ''}
-          ${ad.linkUrl ? `<a class="pr-label" href="${escapeHtml(normalizeExternalUrl(ad.linkUrl))}" target="_blank" rel="noopener noreferrer">詳しく見る</a>` : ''}
+          ${ad.linkUrl ? `<a class="pr-label" href="${escapeHtml(normalizeExternalUrl(ad.linkUrl))}" data-url="${escapeHtml(normalizeExternalUrl(ad.linkUrl))}" target="_blank" rel="noopener noreferrer" onclick="event.preventDefault(); window.open(this.dataset.url, '_blank', 'noopener,noreferrer');">詳しく見る</a>` : ''}
         </article>
       `).join('');
     }
@@ -742,7 +745,7 @@
       const adData = {
         title: formData.get('title').trim(),
         description: formData.get('description').trim(),
-        linkUrl: formData.get('linkUrl'),
+        linkUrl: normalizeExternalUrl(formData.get('linkUrl')),
         imageUrl: formData.get('imageUrl'),
         position: formData.get('position'),
         displayCount: formData.get('displayCount'),
