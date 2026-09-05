@@ -4,9 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="ゴルフ上達に役立つYouTube動画をカテゴリー別に探せる動画まとめナビ">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js?v=2.0"></script>
   <!-- GA4 measurement ID: G-442MPL8BN5 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-442MPL8BN5"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-442MPL8BN5&amp;v=2.0"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
@@ -95,9 +98,9 @@
 
     .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 12px; scrollbar-width: none; }
     .tabs::-webkit-scrollbar { display: none; }
-    .tab { flex-shrink: 0; padding: 8px 16px; border: 1px solid #d7ded9; border-radius: 20px; color: #333; background: #fff; font: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease; }
+    .tab { flex-shrink: 0 !important; padding: 8px 16px !important; border: 1px solid #d7ded9 !important; border-radius: 20px !important; color: #333 !important; background: #fff !important; font: inherit; font-size: 13px; font-weight: 700; white-space: nowrap !important; cursor: pointer; transition: background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease; }
     .tab:hover { border-color: var(--green-500); transform: translateY(-1px); }
-    .tab.active, .tab[aria-selected="true"] { border-color: #1b4d3e; color: #fff; background: #1b4d3e; font-weight: 700; box-shadow: 0 7px 16px rgba(31, 96, 69, .2); }
+    .tab.active, .tab[aria-selected="true"] { flex-shrink: 0 !important; border-color: #1b4d3e !important; color: #fff !important; background: #1b4d3e !important; font-weight: 700 !important; padding: 8px 16px !important; border-radius: 20px !important; white-space: nowrap !important; box-shadow: 0 7px 16px rgba(31, 96, 69, .2); }
 
     .video-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
     .video-card { overflow: hidden; border: 1px solid rgba(220, 232, 223, .95); border-radius: 14px; background: var(--white); box-shadow: var(--shadow); transition: transform .25s ease, box-shadow .25s ease; }
