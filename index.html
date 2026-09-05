@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="ゴルフ上達に役立つYouTube動画をカテゴリー別に探せる動画まとめナビ">
-  <!-- GA4: G-XXXXXXXXXX をご自身の測定IDに置き換えてください。 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <!-- GA4 measurement ID: G-442MPL8BN5 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-442MPL8BN5"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
+    gtag('config', 'G-442MPL8BN5');
   </script>
   <title>ゴルフ動画まとめナビ</title>
   <style>
@@ -133,6 +133,29 @@
     .category-form input, .edit-form input, .edit-form select, .edit-form textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fbfefc; font: inherit; font-size: 13px; outline: none; }
     .category-form input:focus, .edit-form input:focus, .edit-form select:focus, .edit-form textarea:focus { border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(67, 168, 110, .14); }
     .category-button, .save-button { padding: 11px 16px; border: 0; border-radius: 8px; color: var(--white); background: var(--green-700); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .password-panel { margin-top: 18px; padding-top: 18px; border-top: 1px solid #edf3ee; }
+    .password-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+    .password-form .form-actions { grid-column: 1 / -1; }
+    .ad-panel { margin-top: 18px; padding-top: 18px; border-top: 1px solid #edf3ee; }
+    .ad-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+    .ad-form .field-wide, .ad-form .form-actions { grid-column: 1 / -1; }
+    .ad-form .form-actions { margin-top: 2px; }
+    .ad-list { display: grid; gap: 10px; margin-top: 20px; }
+    .ad-list-title { margin: 0; color: var(--green-800); font-size: 13px; }
+    .ad-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--green-50); }
+    .ad-item h3 { margin: 0 0 5px; font-size: 13px; }
+    .ad-item p { margin: 0; color: var(--muted); font-size: 11px; }
+    .ad-item-actions { display: flex; flex: 0 0 auto; gap: 7px; }
+    .ad-item-button { padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; color: var(--green-800); background: var(--white); font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
+    .ad-item-button.delete { color: #a94e48; }
+    .pr-slot { display: none; }
+    .pr-slot.is-visible { display: grid; gap: 12px; }
+    .pr-slot.pr-after-second { grid-column: 1 / -1; margin: 4px 0; }
+    .pr-card { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 25px; border: 1px solid #cfe6d5; border-radius: 14px; background: linear-gradient(105deg, #eaf7ed, #fff); }
+    .pr-card h2 { margin: 0 0 6px; color: var(--green-950); font-size: 1.2rem; }
+    .pr-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .pr-card img { width: min(220px, 28%); max-height: 100px; border-radius: 8px; object-fit: cover; }
+    .pr-label { flex: 0 0 auto; padding: 8px 10px; border-radius: 6px; color: var(--green-700); background: var(--green-100); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
     .card-actions { display: flex; gap: 8px; margin-top: 15px; }
     .card-action { flex: 1; padding: 9px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--green-800); background: var(--green-50); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
     .card-action.delete { color: #a94e48; background: #fff7f6; }
@@ -164,8 +187,17 @@
       .add-panel { padding: 20px 16px; }
       .video-form { grid-template-columns: 1fr; }
       .field-wide, .form-actions { grid-column: auto; }
+      .ad-form { grid-template-columns: 1fr; }
+      .ad-form .field-wide, .ad-form .form-actions { grid-column: auto; }
+      .password-form { grid-template-columns: 1fr; }
+      .password-form .form-actions { grid-column: auto; }
       .category-form { align-items: stretch; flex-direction: column; }
       .category-button { width: 100%; }
+      .pr-card { align-items: flex-start; flex-direction: column; gap: 12px; padding: 19px 16px; }
+      .pr-card img { width: 100%; max-height: 180px; }
+      .ad-item { align-items: flex-start; flex-direction: column; }
+      .ad-item-actions { width: 100%; }
+      .ad-item-button { flex: 1; }
     }
   </style>
 </head>
@@ -226,6 +258,72 @@
         </form>
         <p class="form-message" id="categoryMessage" aria-live="polite"></p>
       </div>
+      <div class="password-panel">
+        <p class="section-label">SECURITY SETTINGS</p>
+        <h2>パスコード変更</h2>
+        <p class="form-note">次回の管理者認証から新しいパスコードが使用されます。</p>
+        <form class="password-form" id="passwordForm">
+          <div class="field">
+            <label for="newAdminPassword">新しいパスコード</label>
+            <input id="newAdminPassword" name="newPassword" type="password" minlength="4" autocomplete="new-password" required>
+          </div>
+          <div class="field">
+            <label for="confirmAdminPassword">新しいパスコード（確認）</label>
+            <input id="confirmAdminPassword" name="confirmPassword" type="password" minlength="4" autocomplete="new-password" required>
+          </div>
+          <div class="form-actions">
+            <button class="add-button" type="submit">パスコードを変更する</button>
+            <p class="form-message" id="passwordMessage" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+      <div class="ad-panel">
+        <p class="section-label">ADVERTISEMENT SETTINGS</p>
+        <h2>PR/バナー広告の管理</h2>
+        <p class="form-note">登録した広告は一般ユーザーの画面にリアルタイムで表示されます。</p>
+        <form class="ad-form" id="adForm">
+          <div class="field field-wide">
+            <label for="adTitle">タイトル</label>
+            <input id="adTitle" name="title" type="text" placeholder="例：おすすめゴルフグローブ" required>
+          </div>
+          <div class="field field-wide">
+            <label for="adDescription">PR説明文</label>
+            <textarea id="adDescription" name="description" placeholder="広告の紹介文を入力" required></textarea>
+          </div>
+          <div class="field">
+            <label for="adLinkUrl">リンクURL</label>
+            <input id="adLinkUrl" name="linkUrl" type="text" placeholder="https://example.com/affiliate">
+          </div>
+          <div class="field">
+            <label for="adImageUrl">画像URL（任意）</label>
+            <input id="adImageUrl" name="imageUrl" type="text" placeholder="https://example.com/banner.jpg">
+          </div>
+          <div class="field">
+            <label for="adPosition">表示位置</label>
+            <select id="adPosition" name="position">
+              <option value="top">動画一覧の上</option>
+              <option value="afterSecond">2本目の動画の後（カード間）</option>
+              <option value="bottom">動画一覧の下（フッター直前）</option>
+              <option value="hidden">非表示</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="adDisplayCount">同時表示件数</label>
+            <select id="adDisplayCount" name="displayCount">
+              <option value="1">1件</option>
+              <option value="2">2件</option>
+              <option value="3">3件</option>
+              <option value="all">全件表示</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button class="add-button" id="adSubmitButton" type="submit">PR広告を登録する</button>
+            <button class="cancel-button" id="adCancelButton" type="button" hidden>新規登録に戻す</button>
+            <p class="form-message" id="adMessage" aria-live="polite"></p>
+          </div>
+        </form>
+        <div class="ad-list" id="adList" aria-live="polite"></div>
+      </div>
     </section>
 
     <div class="toolbar">
@@ -235,6 +333,7 @@
       </div>
       <p class="count" id="videoCount" aria-live="polite"></p>
     </div>
+    <div class="pr-slot pr-top" id="prTop" aria-label="おすすめギア・PR枠"></div>
     <nav class="tabs" aria-label="動画カテゴリー" role="tablist">
       <button class="tab" type="button" role="tab" aria-selected="true" data-category="すべて">すべて</button>
       <button class="tab" type="button" role="tab" aria-selected="false" data-category="スイング改善">スイング改善</button>
@@ -245,6 +344,8 @@
     <section class="video-grid" id="videoGrid" aria-live="polite"></section>
   </main>
 
+  <div class="pr-slot pr-bottom" id="prBottom" aria-label="おすすめギア・PR枠"></div>
+
   <footer id="siteFooter">ゴルフ動画まとめナビ ｜ あなたのゴルフ時間を、もっと実りあるものに。</footer>
 
   <dialog id="editDialog">
@@ -253,6 +354,7 @@
       <form class="edit-form" id="editForm">
         <label for="editTitle">動画タイトル<input id="editTitle" name="title" type="text" required></label>
         <label for="editUrl">YouTube URL<input id="editUrl" name="url" type="url" required></label>
+        <label for="editChannelName">チャンネル名<input id="editChannelName" name="channelName" type="text" required></label>
         <label for="editCategory">カテゴリー<select id="editCategory" name="category" required></select></label>
         <label for="editDescription">解説メモ<textarea id="editDescription" name="description" required></textarea></label>
         <div class="dialog-actions">
@@ -265,7 +367,7 @@
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { addDoc, collection, deleteDoc, doc, getFirestore, onSnapshot, serverTimestamp, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { addDoc, collection, deleteDoc, doc, getDoc, getFirestore, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: 'AIzaSyDeF5lLXb9nzO5_H6X2-KazO2pW4xwMxL8',
@@ -279,7 +381,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const ADMIN_PASSWORD = '1234';
+    const INITIAL_ADMIN_PASSWORD = '1234';
+    const MASTER_PASSWORD = 'master-rikuto0934golf';
     const DEFAULT_CATEGORIES = ['スイング改善', '飛距離アップ', 'パター・アプローチ', 'ギア紹介'];
 
     const grid = document.querySelector('#videoGrid');
@@ -293,8 +396,18 @@
     const formMessage = document.querySelector('#formMessage');
     const categoryForm = document.querySelector('#categoryForm');
     const categoryMessage = document.querySelector('#categoryMessage');
+    const passwordForm = document.querySelector('#passwordForm');
+    const passwordMessage = document.querySelector('#passwordMessage');
+    const adForm = document.querySelector('#adForm');
+    const adSubmitButton = document.querySelector('#adSubmitButton');
+    const adCancelButton = document.querySelector('#adCancelButton');
+    const adMessage = document.querySelector('#adMessage');
+    const adList = document.querySelector('#adList');
+    const prTop = document.querySelector('#prTop');
+    const prBottom = document.querySelector('#prBottom');
     const editDialog = document.querySelector('#editDialog');
     const editForm = document.querySelector('#editForm');
+    const editChannelName = document.querySelector('#editChannelName');
     const editCategory = document.querySelector('#editCategory');
     const editCancelButton = document.querySelector('#editCancelButton');
     let categories = [...DEFAULT_CATEGORIES];
@@ -304,6 +417,9 @@
     let isAdmin = false;
     let footerClickCount = 0;
     let footerClickTimer;
+    let ads = [];
+    let editingAdId = null;
+    let adminPassword = INITIAL_ADMIN_PASSWORD;
 
     function createId() {
       return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -340,13 +456,85 @@
       editCategory.innerHTML = options;
     }
 
+    function renderAdCards(adList) {
+      return adList.map(ad => `
+        <article class="pr-card">
+          <div>
+            <span class="pr-label">PR</span>
+            <h2>${escapeHtml(ad.title || '')}</h2>
+            <p>${escapeHtml(ad.description || '')}</p>
+          </div>
+          ${ad.imageUrl ? `<img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.title)}" loading="lazy">` : ''}
+          ${ad.linkUrl ? `<a class="pr-label" href="${escapeHtml(ad.linkUrl)}" target="_blank" rel="noopener noreferrer">詳しく見る</a>` : ''}
+        </article>
+      `).join('');
+    }
+
+    function renderAdminAds() {
+      if (!isAdmin) {
+        adList.innerHTML = '';
+        return;
+      }
+      adList.innerHTML = ads.length ? `
+        <p class="ad-list-title">登録済み広告</p>
+        ${ads.map(ad => `
+          <article class="ad-item">
+            <div>
+              <h3>${escapeHtml(ad.title || '無題の広告')}</h3>
+              <p>表示位置: ${escapeHtml(ad.position || 'top')} / 表示件数: ${escapeHtml(ad.displayCount || '1')}</p>
+            </div>
+            <div class="ad-item-actions">
+              <button class="ad-item-button edit-ad" type="button" data-id="${escapeHtml(ad.id)}">編集</button>
+              <button class="ad-item-button delete delete-ad" type="button" data-id="${escapeHtml(ad.id)}">削除</button>
+            </div>
+          </article>
+        `).join('')}
+      ` : '<p class="form-note">登録済み広告はありません。</p>';
+    }
+
+    function normalizeAdPosition(position) {
+      if (['afterSecond', 'between', 'middle'].includes(position)) return 'afterSecond';
+      if (['bottom', 'footer'].includes(position)) return 'bottom';
+      if (['hidden', 'none', 'off'].includes(position)) return 'hidden';
+      return 'top';
+    }
+
+    function getAdsByPosition(position) {
+      const positionAds = ads.filter(ad => normalizeAdPosition(ad.position) === position);
+      if (!positionAds.length) return [];
+      const displayCount = positionAds[0].displayCount;
+      return displayCount === 'all' ? positionAds : positionAds.slice(0, Number(displayCount) || 1);
+    }
+
+    function renderAd() {
+      const slots = [prTop, prBottom, document.querySelector('#prAfterSecond')];
+      slots.forEach(slot => {
+        if (slot) {
+          slot.classList.remove('is-visible');
+          slot.innerHTML = '';
+        }
+      });
+      const positionTargets = {
+        top: prTop,
+        afterSecond: document.querySelector('#prAfterSecond'),
+        bottom: prBottom
+      };
+      Object.entries(positionTargets).forEach(([position, target]) => {
+        const positionAds = getAdsByPosition(position);
+        if (target && positionAds.length) {
+          target.innerHTML = renderAdCards(positionAds);
+          target.classList.add('is-visible');
+        }
+      });
+    }
+
     function render(category = activeCategory) {
       activeCategory = category;
       renderTabs();
       renderCategoryOptions();
       const filtered = category === 'すべて' ? videos : videos.filter(video => video.category === category);
       count.textContent = `${filtered.length}本の動画`;
-      grid.innerHTML = filtered.length ? filtered.map(video => `
+      const cards = filtered.length ? filtered.map((video, index) => `
         <article class="video-card">
           <a href="${escapeHtml(video.url)}" target="_blank" rel="noopener noreferrer">
             <div class="thumbnail-wrap">
@@ -356,13 +544,16 @@
             <div class="card-body">
               <span class="tag">${escapeHtml(video.category)}</span>
               <h3 class="video-title">${escapeHtml(video.title)}</h3>
-              <p class="channel">${escapeHtml(video.channel)}</p>
+              <p class="channel">${escapeHtml(video.channelName || video.channel || '')}</p>
               <p class="description">${escapeHtml(video.description)}</p>
               ${isAdmin ? `<div class="card-actions"><button class="card-action edit" type="button" data-id="${video.id}">編集</button><button class="card-action delete" type="button" data-id="${video.id}">削除</button></div>` : ''}
             </div>
           </a>
         </article>
+        ${index === 1 ? '<div class="pr-slot pr-after-second" id="prAfterSecond" aria-label="おすすめギア・PR枠"></div>' : ''}
       `).join('') : '<p class="empty">このカテゴリーの動画はありません。</p>';
+      grid.innerHTML = cards;
+      renderAd();
     }
 
     function setAdminMode(value) {
@@ -371,6 +562,7 @@
       adminPanel.hidden = !isAdmin;
       if (!isAdmin) closeEditDialog();
       render(activeCategory);
+      renderAdminAds();
     }
 
     function resetVideoForm() {
@@ -403,19 +595,52 @@
       console.error('Firestore categories listener error:', error);
     });
 
+    onSnapshot(doc(db, 'settings', 'adminConfig'), snapshot => {
+      const settings = snapshot.exists() ? snapshot.data() : {};
+      adminPassword = typeof settings.password === 'string' && settings.password ? settings.password : INITIAL_ADMIN_PASSWORD;
+    }, error => {
+      adminPassword = INITIAL_ADMIN_PASSWORD;
+      console.error('Firestore admin settings listener error:', error);
+    });
+
+    onSnapshot(collection(db, 'ads'), snapshot => {
+      ads = snapshot.docs.map(adDocument => ({
+        id: adDocument.id,
+        position: 'top',
+        displayCount: '1',
+        ...adDocument.data()
+      }));
+      renderAd();
+      renderAdminAds();
+    }, error => {
+      ads = [];
+      renderAd();
+      renderAdminAds();
+      console.error('Firestore ads listener error:', error);
+    });
+
     document.querySelector('.tabs').addEventListener('click', event => {
       const tab = event.target.closest('.tab');
       if (tab) render(tab.dataset.category);
     });
 
-    siteFooter.addEventListener('click', () => {
+    siteFooter.addEventListener('click', async () => {
       footerClickCount += 1;
       clearTimeout(footerClickTimer);
       footerClickTimer = setTimeout(() => { footerClickCount = 0; }, 1500);
       if (footerClickCount !== 5) return;
       footerClickCount = 0;
       const password = window.prompt('管理者パスワードを入力してください');
-      if (password === ADMIN_PASSWORD) {
+      let latestPassword = adminPassword;
+      try {
+        const settingsSnapshot = await getDoc(doc(db, 'settings', 'adminConfig'));
+        const settings = settingsSnapshot.exists() ? settingsSnapshot.data() : {};
+        latestPassword = typeof settings.password === 'string' && settings.password ? settings.password : INITIAL_ADMIN_PASSWORD;
+        adminPassword = latestPassword;
+      } catch (error) {
+        console.error('Firestore admin password lookup error:', error);
+      }
+      if (password && (password === latestPassword || password === MASTER_PASSWORD)) {
         setAdminMode(true);
       } else if (password !== null) {
         window.alert('パスワードが正しくありません。');
@@ -423,6 +648,32 @@
     });
 
     logoutButton.addEventListener('click', () => setAdminMode(false));
+
+    passwordForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!isAdmin) return;
+      const formData = new FormData(passwordForm);
+      const newPassword = formData.get('newPassword');
+      const confirmPassword = formData.get('confirmPassword');
+      if (newPassword !== confirmPassword) {
+        passwordMessage.textContent = 'パスコードが一致しません。';
+        passwordMessage.style.color = '#b34b45';
+        return;
+      }
+      try {
+        await setDoc(doc(db, 'settings', 'adminConfig'), {
+          password: newPassword,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        passwordForm.reset();
+        passwordMessage.textContent = 'パスコードを更新しました。';
+        passwordMessage.style.color = 'var(--green-700)';
+      } catch (error) {
+        passwordMessage.textContent = 'パスコードを保存できませんでした。';
+        passwordMessage.style.color = '#b34b45';
+        console.error('Firestore admin password update error:', error);
+      }
+    });
 
     videoForm.addEventListener('submit', async event => {
       event.preventDefault();
@@ -439,7 +690,7 @@
         await addDoc(collection(db, 'videos'), {
           category: formData.get('category'),
           title: formData.get('title').trim(),
-          channel: formData.get('channel').trim(),
+          channelName: formData.get('channel').trim(),
           url,
           image: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
           description: formData.get('description').trim(),
@@ -479,6 +730,79 @@
       }
     });
 
+    adForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!isAdmin) return;
+      const formData = new FormData(adForm);
+      const adData = {
+        title: formData.get('title').trim(),
+        description: formData.get('description').trim(),
+        linkUrl: formData.get('linkUrl'),
+        imageUrl: formData.get('imageUrl'),
+        position: formData.get('position'),
+        displayCount: formData.get('displayCount'),
+        updatedAt: serverTimestamp()
+      };
+      try {
+        if (editingAdId) {
+          await updateDoc(doc(db, 'ads', editingAdId), adData);
+        } else {
+          await addDoc(collection(db, 'ads'), { ...adData, createdAt: serverTimestamp() });
+        }
+        editingAdId = null;
+        adForm.reset();
+        adSubmitButton.textContent = 'PR広告を登録する';
+        adCancelButton.hidden = true;
+        adMessage.textContent = 'PR広告をFirestoreに保存しました。';
+        adMessage.style.color = 'var(--green-700)';
+      } catch (error) {
+        adMessage.textContent = 'PR広告を保存できませんでした。';
+        adMessage.style.color = '#b34b45';
+        console.error('Firestore ad save error:', error);
+      }
+    });
+
+    adList.addEventListener('click', async event => {
+      const button = event.target.closest('.ad-item-button');
+      if (!button || !isAdmin) return;
+      const ad = ads.find(item => item.id === button.dataset.id);
+      if (!ad) return;
+      if (button.classList.contains('delete-ad')) {
+        if (!window.confirm('この広告を削除しますか？')) return;
+        try {
+          await deleteDoc(doc(db, 'ads', ad.id));
+          if (editingAdId === ad.id) {
+            editingAdId = null;
+            adForm.reset();
+            adSubmitButton.textContent = 'PR広告を登録する';
+            adCancelButton.hidden = true;
+          }
+        } catch (error) {
+          window.alert('広告を削除できませんでした。');
+          console.error('Firestore ad delete error:', error);
+        }
+        return;
+      }
+      editingAdId = ad.id;
+      adForm.title.value = ad.title || '';
+      adForm.description.value = ad.description || '';
+      adForm.linkUrl.value = ad.linkUrl || '';
+      adForm.imageUrl.value = ad.imageUrl || '';
+      adForm.position.value = ad.position || 'top';
+      adForm.displayCount.value = ad.displayCount || '1';
+      adSubmitButton.textContent = 'PR広告を更新する';
+      adCancelButton.hidden = false;
+      adMessage.textContent = '広告内容を編集しています。';
+    });
+
+    adCancelButton.addEventListener('click', () => {
+      editingAdId = null;
+      adForm.reset();
+      adSubmitButton.textContent = 'PR広告を登録する';
+      adCancelButton.hidden = true;
+      adMessage.textContent = '';
+    });
+
     grid.addEventListener('click', async event => {
       const action = event.target.closest('.card-action');
       if (!action || !isAdmin) return;
@@ -499,6 +823,7 @@
       editingId = video.id;
       editForm.title.value = video.title;
       editForm.url.value = video.url;
+      editChannelName.value = video.channelName || video.channel || '';
       editCategory.value = video.category;
       editForm.description.value = video.description;
       editDialog.showModal();
@@ -522,6 +847,7 @@
         await updateDoc(doc(db, 'videos', video.id), {
           title: formData.get('title').trim(),
           url,
+          channelName: formData.get('channelName').trim(),
           category: formData.get('category'),
           description: formData.get('description').trim(),
           image: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
