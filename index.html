@@ -98,9 +98,11 @@
 
     .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 12px; scrollbar-width: none; }
     .tabs::-webkit-scrollbar { display: none; }
+    .category-tag { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
     .tab { flex-shrink: 0 !important; padding: 8px 16px !important; border: 1px solid #d7ded9 !important; border-radius: 20px !important; color: #333 !important; background: #fff !important; font: inherit; font-size: 13px; font-weight: 700; white-space: nowrap !important; cursor: pointer; transition: background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease; }
     .tab:hover { border-color: var(--green-500); transform: translateY(-1px); }
-    .tab.active, .tab[aria-selected="true"] { flex-shrink: 0 !important; border-color: #1b4d3e !important; color: #fff !important; background: #1b4d3e !important; font-weight: 700 !important; padding: 8px 16px !important; border-radius: 20px !important; white-space: nowrap !important; box-shadow: 0 7px 16px rgba(31, 96, 69, .2); }
+    .category-tag.active, .category-tag[aria-selected="true"] { flex-shrink: 0 !important; background-color: #1b4d3e !important; color: #ffffff !important; font-weight: bold !important; opacity: 1 !important; visibility: visible !important; border-color: #1b4d3e !important; padding: 8px 16px !important; border-radius: 20px !important; white-space: nowrap !important; box-shadow: 0 7px 16px rgba(31, 96, 69, .2); }
+    .category-tag:active, .category-tag:focus { outline: none; }
 
     .video-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
     .video-card { overflow: hidden; border: 1px solid rgba(220, 232, 223, .95); border-radius: 14px; background: var(--white); box-shadow: var(--shadow); transition: transform .25s ease, box-shadow .25s ease; }
@@ -535,10 +537,25 @@
       return `${scheme ? scheme[0].toLowerCase() : 'https://'}${withoutRepeatedSchemes}`;
     }
 
+    function normalizeYouTubeUrl(value) {
+      const rawUrl = String(value || '').trim();
+      if (!rawUrl) return '';
+      try {
+        const url = new URL(rawUrl);
+        const isYouTubeHost = ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be'].includes(url.hostname.toLowerCase());
+        const isYouTubePath = url.hostname.toLowerCase() === 'youtu.be'
+          ? url.pathname.length > 1
+          : url.pathname === '/watch' || url.pathname.startsWith('/shorts/') || url.pathname.startsWith('/embed/');
+        return isYouTubeHost && isYouTubePath ? url.href : '';
+      } catch (error) {
+        return '';
+      }
+    }
+
     function renderTabs() {
       const tabItems = ['すべて', ...categories];
       document.querySelector('.tabs').innerHTML = tabItems.map(category => `
-        <button class="tab${category === activeCategory ? ' active' : ''}" type="button" role="tab" aria-selected="${category === activeCategory}" data-category="${escapeHtml(category)}">${escapeHtml(category)}</button>
+        <button class="tab category-tag${category === activeCategory ? ' active' : ''}" type="button" role="tab" aria-selected="${category === activeCategory}" data-category="${escapeHtml(category)}">${escapeHtml(category)}</button>
       `).join('');
     }
 
@@ -711,15 +728,15 @@
       });
     }
 
-    function render(category = activeCategory) {
+    function render(category = activeCategory, options = {}) {
       activeCategory = category;
-      renderTabs();
+      if (options.renderTabs !== false) renderTabs();
       renderCategoryOptions();
       const filtered = getSortedVideos(category);
       count.textContent = `${filtered.length}本の動画`;
       const cards = filtered.length ? filtered.map((video, index) => `
         <article class="video-card" data-id="${escapeHtml(video.id)}">
-          <a href="${escapeHtml(video.url)}" target="_blank" rel="noopener noreferrer">
+          <a href="${escapeHtml(normalizeYouTubeUrl(video.url) || video.url || '#')}" data-youtube-url="${escapeHtml(video.url || '')}" target="_blank" rel="noopener noreferrer">
             <div class="thumbnail-wrap">
               <img src="${escapeHtml(video.image)}" alt="${escapeHtml(video.title)}のサムネイル" loading="lazy">
               <span class="play" aria-hidden="true">▶</span>
@@ -832,7 +849,13 @@
 
     document.querySelector('.tabs').addEventListener('click', event => {
       const tab = event.target.closest('.tab');
-      if (tab) render(tab.dataset.category);
+      if (!tab) return;
+      document.querySelectorAll('.category-tag').forEach(categoryTag => {
+        const isActive = categoryTag === tab;
+        categoryTag.classList.toggle('active', isActive);
+        categoryTag.setAttribute('aria-selected', String(isActive));
+      });
+      render(tab.dataset.category, { renderTabs: false });
     });
 
     siteFooter.addEventListener('click', async () => {
@@ -1095,6 +1118,19 @@
     });
 
     grid.addEventListener('click', async event => {
+      const videoLink = event.target.closest('.video-card > a');
+      if (videoLink && !event.target.closest('.card-action')) {
+        event.preventDefault();
+        const videoUrl = normalizeYouTubeUrl(videoLink.dataset.youtubeUrl);
+        if (!videoUrl) {
+          window.alert('有効なYouTube動画URLを確認できませんでした。');
+          return;
+        }
+        if (window.confirm('YouTubeで再生しますか？')) {
+          window.open(videoUrl, '_blank', 'noopener,noreferrer');
+        }
+        return;
+      }
       const action = event.target.closest('.card-action');
       if (!action || !isAdmin) return;
       event.preventDefault();
