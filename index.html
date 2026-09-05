@@ -114,6 +114,7 @@
     .empty { grid-column: 1 / -1; padding: 40px 20px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; background: var(--white); }
     .add-panel { margin: 0 0 38px; padding: 25px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); box-shadow: var(--shadow); }
     .add-panel h2 { margin-bottom: 5px; font-size: 1.35rem; }
+    .admin-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .form-note { margin: 0 0 18px; color: var(--muted); font-size: 12px; }
     .video-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
     .field { display: flex; flex-direction: column; gap: 7px; }
@@ -180,7 +181,10 @@
   <main>
     <section class="add-panel" id="adminPanel" aria-labelledby="add-video-heading" hidden>
       <p class="section-label">SHARE A VIDEO</p>
-      <h2 id="add-video-heading">おすすめ動画を追加する</h2>
+      <div class="admin-panel-heading">
+        <h2 id="add-video-heading">おすすめ動画を追加する</h2>
+        <button class="cancel-button" id="logoutButton" type="button">ログアウト</button>
+      </div>
       <p class="form-note">YouTubeの動画URLを登録すると、一覧にすぐ反映されます。</p>
       <form class="video-form" id="videoForm">
         <div class="field field-wide">
@@ -259,23 +263,30 @@
     </div>
   </dialog>
 
-  <script>
-    const STORAGE_KEYS = { videos: 'golfVideoNavVideos', categories: 'golfVideoNavCategories' };
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { addDoc, collection, deleteDoc, doc, getFirestore, onSnapshot, serverTimestamp, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyDeF5lLXb9nzO5_H6X2-KazO2pW4xwMxL8',
+      authDomain: 'golf-app-1ebbe.firebaseapp.com',
+      projectId: 'golf-app-1ebbe',
+      storageBucket: 'golf-app-1ebbe.firebasestorage.app',
+      messagingSenderId: '485947056890',
+      appId: '1:485947056890:web:e399b61d91cbfc253e9f43',
+      measurementId: 'G-442MPL8BN5'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     const ADMIN_PASSWORD = '1234';
     const DEFAULT_CATEGORIES = ['スイング改善', '飛距離アップ', 'パター・アプローチ', 'ギア紹介'];
-    const DEFAULT_VIDEOS = [
-      { category: 'スイング改善', title: '正しいスイングの基本を身につける練習法', channel: 'UUUM GOLF', url: 'https://www.youtube.com/watch?v=5Z7nK4m3X9Q', image: 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?auto=format&fit=crop&w=900&q=85', description: 'アドレスからフィニッシュまで、まず押さえたい基本を丁寧に確認。' },
-      { category: 'スイング改善', title: 'ミート率が上がる！再現性の高いスイング', channel: 'ゴルフレッスン動画 Tera-You-Golf', url: 'https://www.youtube.com/watch?v=8x7Qp2LmR4A', image: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=900&q=85', description: '力みを減らし、毎回同じインパクトを作るためのチェックポイント。' },
-      { category: '飛距離アップ', title: 'ドライバーの飛距離を伸ばす3つのコツ', channel: 'GOLFavo ゴルフアボ', url: 'https://www.youtube.com/watch?v=3nV6kP1sT8E', image: 'https://images.unsplash.com/photo-1592919505780-303950717480?auto=format&fit=crop&w=900&q=85', description: 'ヘッドスピードだけに頼らず、効率よく飛ばす動きを学べます。' },
-      { category: '飛距離アップ', title: '飛ばしのための体の使い方を徹底解説', channel: 'Golf Digest Japan', url: 'https://www.youtube.com/watch?v=7bM2qL9cH5F', image: 'https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?auto=format&fit=crop&w=900&q=85', description: '下半身と上半身の連動を、わかりやすいドリルで体感。' },
-      { category: 'パター・アプローチ', title: '寄せワン率が変わるアプローチの基本', channel: '中井学ゴルフチャンネル', url: 'https://www.youtube.com/watch?v=2jR8wN6dK3B', image: 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?auto=format&fit=crop&w=900&q=85', description: '距離感とミスの傾向を整えて、グリーン周りの苦手を克服。' },
-      { category: 'ギア紹介', title: '今選びたいゴルフクラブの選び方', channel: 'Golf Gear Dots', url: 'https://www.youtube.com/watch?v=6cY4pR8mV2L', image: 'https://images.unsplash.com/photo-1556373883-0c3b2b5c7c31?auto=format&fit=crop&w=900&q=85', description: 'スペック表だけではわからない、クラブ選びの見方を紹介。' }
-    ];
 
     const grid = document.querySelector('#videoGrid');
     const count = document.querySelector('#videoCount');
     const adminPanel = document.querySelector('#adminPanel');
     const siteFooter = document.querySelector('#siteFooter');
+    const logoutButton = document.querySelector('#logoutButton');
     const videoForm = document.querySelector('#videoForm');
     const videoSubmitButton = document.querySelector('#videoSubmitButton');
     const videoCancelButton = document.querySelector('#videoCancelButton');
@@ -286,8 +297,8 @@
     const editForm = document.querySelector('#editForm');
     const editCategory = document.querySelector('#editCategory');
     const editCancelButton = document.querySelector('#editCancelButton');
-    let categories = loadCategories();
-    let videos = loadVideos();
+    let categories = [...DEFAULT_CATEGORIES];
+    let videos = [];
     let activeCategory = 'すべて';
     let editingId = null;
     let isAdmin = false;
@@ -296,30 +307,6 @@
 
     function createId() {
       return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    }
-
-    function loadCategories() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.categories));
-        return Array.isArray(saved) && saved.length ? [...new Set([...DEFAULT_CATEGORIES, ...saved])] : [...DEFAULT_CATEGORIES];
-      } catch (error) {
-        return [...DEFAULT_CATEGORIES];
-      }
-    }
-
-    function loadVideos() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.videos));
-        if (Array.isArray(saved)) return saved.map(video => ({ ...video, id: video.id || createId() }));
-      } catch (error) {
-        // localStorageが利用できない場合は初期データを表示する
-      }
-      return DEFAULT_VIDEOS.map(video => ({ ...video, id: createId() }));
-    }
-
-    function saveData() {
-      localStorage.setItem(STORAGE_KEYS.videos, JSON.stringify(videos));
-      localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(categories));
     }
 
     function getYouTubeId(url) {
@@ -399,6 +386,23 @@
       editingId = null;
     }
 
+    onSnapshot(collection(db, 'videos'), snapshot => {
+      videos = snapshot.docs.map(videoDocument => ({ id: videoDocument.id, ...videoDocument.data() }));
+      render(activeCategory);
+    }, error => {
+      count.textContent = '動画を読み込めませんでした';
+      grid.innerHTML = '<p class="empty">Firestoreへの接続を確認してください。</p>';
+      console.error('Firestore videos listener error:', error);
+    });
+
+    onSnapshot(collection(db, 'categories'), snapshot => {
+      const cloudCategories = snapshot.docs.map(categoryDocument => categoryDocument.data().name).filter(Boolean);
+      categories = [...new Set([...DEFAULT_CATEGORIES, ...cloudCategories])];
+      render(activeCategory);
+    }, error => {
+      console.error('Firestore categories listener error:', error);
+    });
+
     document.querySelector('.tabs').addEventListener('click', event => {
       const tab = event.target.closest('.tab');
       if (tab) render(tab.dataset.category);
@@ -418,7 +422,9 @@
       }
     });
 
-    videoForm.addEventListener('submit', event => {
+    logoutButton.addEventListener('click', () => setAdminMode(false));
+
+    videoForm.addEventListener('submit', async event => {
       event.preventDefault();
       if (!isAdmin) return;
       const formData = new FormData(videoForm);
@@ -429,16 +435,28 @@
         formMessage.style.color = '#b34b45';
         return;
       }
-      videos.unshift({ id: createId(), category: formData.get('category'), title: formData.get('title').trim(), channel: formData.get('channel').trim(), url, image: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`, description: formData.get('description').trim() });
-      saveData();
-      resetVideoForm();
-      formMessage.textContent = '動画を一覧に追加しました。';
-      render(activeCategory);
+      try {
+        await addDoc(collection(db, 'videos'), {
+          category: formData.get('category'),
+          title: formData.get('title').trim(),
+          channel: formData.get('channel').trim(),
+          url,
+          image: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+          description: formData.get('description').trim(),
+          createdAt: serverTimestamp()
+        });
+        resetVideoForm();
+        formMessage.textContent = '動画をFirestoreに追加しました。';
+      } catch (error) {
+        formMessage.textContent = '動画を保存できませんでした。';
+        formMessage.style.color = '#b34b45';
+        console.error('Firestore video add error:', error);
+      }
     });
 
     videoCancelButton.addEventListener('click', resetVideoForm);
 
-    categoryForm.addEventListener('submit', event => {
+    categoryForm.addEventListener('submit', async event => {
       event.preventDefault();
       if (!isAdmin) return;
       const input = document.querySelector('#newCategory');
@@ -449,15 +467,19 @@
         categoryMessage.style.color = '#b34b45';
         return;
       }
-      categories.push(category);
-      saveData();
-      input.value = '';
-      categoryMessage.textContent = 'カテゴリーを追加しました。';
-      categoryMessage.style.color = 'var(--green-700)';
-      render(activeCategory);
+      try {
+        await addDoc(collection(db, 'categories'), { name: category, createdAt: serverTimestamp() });
+        input.value = '';
+        categoryMessage.textContent = 'カテゴリーをFirestoreに追加しました。';
+        categoryMessage.style.color = 'var(--green-700)';
+      } catch (error) {
+        categoryMessage.textContent = 'カテゴリーを保存できませんでした。';
+        categoryMessage.style.color = '#b34b45';
+        console.error('Firestore category add error:', error);
+      }
     });
 
-    grid.addEventListener('click', event => {
+    grid.addEventListener('click', async event => {
       const action = event.target.closest('.card-action');
       if (!action || !isAdmin) return;
       event.preventDefault();
@@ -466,9 +488,12 @@
       if (!video) return;
       if (action.classList.contains('delete')) {
         if (!window.confirm(`「${video.title}」を削除しますか？`)) return;
-        videos = videos.filter(item => item.id !== video.id);
-        saveData();
-        render(activeCategory);
+        try {
+          await deleteDoc(doc(db, 'videos', video.id));
+        } catch (error) {
+          window.alert('動画を削除できませんでした。');
+          console.error('Firestore video delete error:', error);
+        }
         return;
       }
       editingId = video.id;
@@ -481,7 +506,7 @@
 
     editCancelButton.addEventListener('click', closeEditDialog);
 
-    editForm.addEventListener('submit', event => {
+    editForm.addEventListener('submit', async event => {
       event.preventDefault();
       if (!isAdmin || !editingId) return;
       const formData = new FormData(editForm);
@@ -492,16 +517,21 @@
         return;
       }
       const video = videos.find(item => item.id === editingId);
-      if (video) {
-        video.title = formData.get('title').trim();
-        video.url = url;
-        video.category = formData.get('category');
-        video.description = formData.get('description').trim();
-        video.image = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-        saveData();
+      if (!video) return;
+      try {
+        await updateDoc(doc(db, 'videos', video.id), {
+          title: formData.get('title').trim(),
+          url,
+          category: formData.get('category'),
+          description: formData.get('description').trim(),
+          image: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+          updatedAt: serverTimestamp()
+        });
+        closeEditDialog();
+      } catch (error) {
+        window.alert('動画を更新できませんでした。');
+        console.error('Firestore video update error:', error);
       }
-      closeEditDialog();
-      render(activeCategory);
     });
 
     render();
