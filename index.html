@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="ゴルフ上達に役立つYouTube動画をカテゴリー別に探せる動画まとめナビ">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   <!-- GA4 measurement ID: G-442MPL8BN5 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-442MPL8BN5"></script>
   <script>
@@ -133,6 +134,14 @@
     .category-form input, .edit-form input, .edit-form select, .edit-form textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fbfefc; font: inherit; font-size: 13px; outline: none; }
     .category-form input:focus, .edit-form input:focus, .edit-form select:focus, .edit-form textarea:focus { border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(67, 168, 110, .14); }
     .category-button, .save-button { padding: 11px 16px; border: 0; border-radius: 8px; color: var(--white); background: var(--green-700); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .category-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .category-list-title { margin: 0; color: var(--green-800); font-size: 13px; font-weight: 800; }
+    .category-list-title, .category-list > .form-note { flex: 0 0 100%; }
+    .category-item { display: inline-flex; align-items: center; gap: 8px; padding: 7px 8px 7px 12px; border: 1px solid #cfe6d5; border-radius: 999px; background: var(--green-50); }
+    .category-item-name { font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .category-item-actions { display: flex; gap: 7px; }
+    .category-item-button { display: grid; width: 24px; height: 24px; padding: 0; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--green-800); background: var(--white); font: inherit; font-size: 10px; font-weight: 800; cursor: pointer; }
+    .category-item-button.delete { color: #a94e48; }
     .password-panel { margin-top: 18px; padding-top: 18px; border-top: 1px solid #edf3ee; }
     .password-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
     .password-form .form-actions { grid-column: 1 / -1; }
@@ -158,6 +167,7 @@
     .pr-label { flex: 0 0 auto; padding: 8px 10px; border-radius: 6px; color: var(--green-700); background: var(--green-100); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
     .card-actions { display: flex; gap: 8px; margin-top: 15px; }
     .card-action { flex: 1; padding: 9px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--green-800); background: var(--green-50); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .card-action.move-video { flex: 0 0 36px; padding: 9px 4px; }
     .card-action.delete { color: #a94e48; background: #fff7f6; }
     dialog { width: min(520px, calc(100% - 28px)); padding: 0; border: 0; border-radius: 14px; color: var(--ink); box-shadow: 0 24px 70px rgba(9, 35, 23, .28); }
     dialog::backdrop { background: rgba(10, 35, 25, .58); }
@@ -229,16 +239,18 @@
         </div>
         <div class="field">
           <label for="videoCategory">カテゴリー</label>
-          <select id="videoCategory" name="category" required>
-            <option value="スイング改善">スイング改善</option>
-            <option value="飛距離アップ">飛距離アップ</option>
-            <option value="パター・アプローチ">パター・アプローチ</option>
-            <option value="ギア紹介">ギア紹介</option>
-          </select>
+          <select id="videoCategory" name="category" required></select>
         </div>
         <div class="field">
           <label for="channelName">チャンネル名</label>
           <input id="channelName" name="channel" type="text" placeholder="例：ゴルフレッスンチャンネル" required>
+        </div>
+        <div class="field">
+          <label for="videoStatus">公開設定</label>
+          <select id="videoStatus" name="status">
+            <option value="published">公開</option>
+            <option value="draft">非公開（下書き）</option>
+          </select>
         </div>
         <div class="field">
           <label for="videoDescription">解説メモ</label>
@@ -257,6 +269,7 @@
           <button class="category-button" type="submit">カテゴリー追加</button>
         </form>
         <p class="form-message" id="categoryMessage" aria-live="polite"></p>
+        <div class="category-list" id="categoryList" aria-live="polite"></div>
       </div>
       <div class="password-panel">
         <p class="section-label">SECURITY SETTINGS</p>
@@ -316,6 +329,13 @@
               <option value="all">全件表示</option>
             </select>
           </div>
+          <div class="field">
+            <label for="adStatus">公開設定</label>
+            <select id="adStatus" name="status">
+              <option value="published">公開</option>
+              <option value="draft">非公開（下書き）</option>
+            </select>
+          </div>
           <div class="form-actions">
             <button class="add-button" id="adSubmitButton" type="submit">PR広告を登録する</button>
             <button class="cancel-button" id="adCancelButton" type="button" hidden>新規登録に戻す</button>
@@ -334,13 +354,7 @@
       <p class="count" id="videoCount" aria-live="polite"></p>
     </div>
     <div class="pr-slot pr-top" id="prTop" aria-label="おすすめギア・PR枠"></div>
-    <nav class="tabs" aria-label="動画カテゴリー" role="tablist">
-      <button class="tab" type="button" role="tab" aria-selected="true" data-category="すべて">すべて</button>
-      <button class="tab" type="button" role="tab" aria-selected="false" data-category="スイング改善">スイング改善</button>
-      <button class="tab" type="button" role="tab" aria-selected="false" data-category="飛距離アップ">飛距離アップ</button>
-      <button class="tab" type="button" role="tab" aria-selected="false" data-category="パター・アプローチ">パター・アプローチ</button>
-      <button class="tab" type="button" role="tab" aria-selected="false" data-category="ギア紹介">ギア紹介</button>
-    </nav>
+    <nav class="tabs" aria-label="動画カテゴリー" role="tablist"></nav>
     <section class="video-grid" id="videoGrid" aria-live="polite"></section>
   </main>
 
@@ -356,6 +370,7 @@
         <label for="editUrl">YouTube URL<input id="editUrl" name="url" type="url" required></label>
         <label for="editChannelName">チャンネル名<input id="editChannelName" name="channelName" type="text" required></label>
         <label for="editCategory">カテゴリー<select id="editCategory" name="category" required></select></label>
+        <label for="editStatus">公開設定<select id="editStatus" name="status"><option value="published">公開</option><option value="draft">非公開（下書き）</option></select></label>
         <label for="editDescription">解説メモ<textarea id="editDescription" name="description" required></textarea></label>
         <div class="dialog-actions">
           <button class="cancel-button" id="editCancelButton" type="button">キャンセル</button>
@@ -367,7 +382,7 @@
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { addDoc, collection, deleteDoc, doc, getDoc, getFirestore, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: 'AIzaSyDeF5lLXb9nzO5_H6X2-KazO2pW4xwMxL8',
@@ -383,7 +398,14 @@
     const db = getFirestore(app);
     const INITIAL_ADMIN_PASSWORD = '1234';
     const MASTER_PASSWORD = 'master-rikuto0934golf';
-    const DEFAULT_CATEGORIES = ['スイング改善', '飛距離アップ', 'パター・アプローチ', 'ギア紹介'];
+    const INITIAL_CATEGORIES = [
+      { id: 'swing-improvement', name: 'スイング改善' },
+      { id: 'distance-up', name: '飛距離アップ' },
+      { id: 'putting', name: 'パッティング' },
+      { id: 'approach', name: 'アプローチ' },
+      { id: 'bunker', name: 'バンカー' },
+      { id: 'club-selection', name: 'クラブ選択' }
+    ];
 
     const grid = document.querySelector('#videoGrid');
     const count = document.querySelector('#videoCount');
@@ -391,17 +413,20 @@
     const siteFooter = document.querySelector('#siteFooter');
     const logoutButton = document.querySelector('#logoutButton');
     const videoForm = document.querySelector('#videoForm');
+    const editStatus = document.querySelector('#editStatus');
     const videoSubmitButton = document.querySelector('#videoSubmitButton');
     const videoCancelButton = document.querySelector('#videoCancelButton');
     const formMessage = document.querySelector('#formMessage');
     const categoryForm = document.querySelector('#categoryForm');
     const categoryMessage = document.querySelector('#categoryMessage');
+    const categoryList = document.querySelector('#categoryList');
     const passwordForm = document.querySelector('#passwordForm');
     const passwordMessage = document.querySelector('#passwordMessage');
     const adForm = document.querySelector('#adForm');
     const adSubmitButton = document.querySelector('#adSubmitButton');
     const adCancelButton = document.querySelector('#adCancelButton');
     const adMessage = document.querySelector('#adMessage');
+    const adStatus = document.querySelector('#adStatus');
     const adList = document.querySelector('#adList');
     const prTop = document.querySelector('#prTop');
     const prBottom = document.querySelector('#prBottom');
@@ -410,7 +435,11 @@
     const editChannelName = document.querySelector('#editChannelName');
     const editCategory = document.querySelector('#editCategory');
     const editCancelButton = document.querySelector('#editCancelButton');
-    let categories = [...DEFAULT_CATEGORIES];
+    let categories = [];
+    let categoryRecords = [];
+    let firestoreCategoryRecords = [];
+    let deletedInitialCategoryIds = [];
+    let categoryConfigReady = false;
     let videos = [];
     let activeCategory = 'すべて';
     let editingId = null;
@@ -420,9 +449,61 @@
     let ads = [];
     let editingAdId = null;
     let adminPassword = INITIAL_ADMIN_PASSWORD;
+    let categorySeedStarted = false;
+    let categorySortable = null;
+    let videoSortable = null;
 
     function createId() {
       return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    async function seedInitialCategories(categoriesToSeed = INITIAL_CATEGORIES) {
+      if (categorySeedStarted) return;
+      categorySeedStarted = true;
+      try {
+        const batch = writeBatch(db);
+        categoriesToSeed.forEach(category => {
+          batch.set(doc(db, 'categories', category.id), {
+            name: category.name,
+            order: INITIAL_CATEGORIES.findIndex(item => item.id === category.id),
+            createdAt: serverTimestamp(),
+            seeded: true
+          }, { merge: true });
+        });
+        await batch.commit();
+      } catch (error) {
+        categorySeedStarted = false;
+        console.error('Firestore category seed error:', error);
+      }
+    }
+
+    function syncCategories() {
+      if (!categoryConfigReady) return;
+      const deletedIds = new Set(deletedInitialCategoryIds);
+      const recordsById = new Map(firestoreCategoryRecords.map(category => [category.id, category]));
+      const mergedRecords = INITIAL_CATEGORIES
+        .filter(category => !deletedIds.has(category.id))
+          .map((category, index) => {
+            const existing = recordsById.get(category.id);
+            return existing ? { ...existing, order: Number.isFinite(Number(existing.order)) ? Number(existing.order) : index } : { ...category, order: index, isInitial: true, exists: false };
+          });
+      const knownNames = new Set(mergedRecords.map(category => category.name));
+      firestoreCategoryRecords.forEach(category => {
+        if (!knownNames.has(category.name)) {
+            mergedRecords.push({ ...category, order: Number.isFinite(Number(category.order)) ? Number(category.order) : INITIAL_CATEGORIES.length + mergedRecords.length });
+          knownNames.add(category.name);
+        }
+      });
+        mergedRecords.sort((left, right) => Number(left.order) - Number(right.order) || left.name.localeCompare(right.name, 'ja'));
+      categoryRecords = mergedRecords;
+      categories = mergedRecords.map(category => category.name);
+      render(activeCategory);
+      renderCategoryManagement();
+      initializeSortables();
+      if (!categorySeedStarted) {
+        const missingInitial = INITIAL_CATEGORIES.filter(category => !deletedIds.has(category.id) && !recordsById.has(category.id));
+        if (missingInitial.length) seedInitialCategories();
+      }
     }
 
     function getYouTubeId(url) {
@@ -464,6 +545,91 @@
       editCategory.innerHTML = options;
     }
 
+    function renderCategoryManagement() {
+      if (!isAdmin) {
+        categoryList.innerHTML = '';
+        return;
+      }
+      categoryList.innerHTML = categoryRecords.length ? `
+        <p class="category-list-title">登録済みカテゴリー</p>
+        ${categoryRecords.map(category => `
+          <div class="category-item" data-id="${escapeHtml(category.id)}">
+            <span class="category-item-name">${escapeHtml(category.name)}</span>
+            <div class="category-item-actions">
+              <button class="category-item-button move-category" type="button" aria-label="${escapeHtml(category.name)}を上へ" title="上へ" data-id="${escapeHtml(category.id)}" data-direction="-1">▲</button>
+              <button class="category-item-button move-category" type="button" aria-label="${escapeHtml(category.name)}を下へ" title="下へ" data-id="${escapeHtml(category.id)}" data-direction="1">▼</button>
+              <button class="category-item-button edit-category" type="button" aria-label="${escapeHtml(category.name)}を編集" title="編集" data-id="${escapeHtml(category.id)}">✎</button>
+              <button class="category-item-button delete delete-category" type="button" aria-label="${escapeHtml(category.name)}を削除" title="削除" data-id="${escapeHtml(category.id)}">×</button>
+            </div>
+          </div>
+        `).join('')}
+      ` : '<p class="form-note">登録済みカテゴリーはありません。</p>';
+    }
+
+    function initializeSortables() {
+      if (categorySortable) {
+        categorySortable.destroy();
+        categorySortable = null;
+      }
+      if (videoSortable) {
+        videoSortable.destroy();
+        videoSortable = null;
+      }
+      if (!isAdmin || !window.Sortable) return;
+
+      categorySortable = window.Sortable.create(categoryList, {
+        draggable: '.category-item',
+        delay: 200,
+        delayOnTouchOnly: true,
+        touchStartThreshold: 4,
+        animation: 150,
+        onEnd: async () => {
+          const orderedIds = categorySortable.toArray();
+          try {
+            const batch = writeBatch(db);
+            orderedIds.forEach((id, index) => {
+              const category = categoryRecords.find(item => item.id === id);
+              if (!category) return;
+              batch.set(doc(db, 'categories', id), {
+                name: category.name,
+                order: index,
+                ...(category.isInitial ? { isInitial: true } : {})
+              }, { merge: true });
+            });
+            await batch.commit();
+          } catch (error) {
+            window.alert('カテゴリーの並び順を更新できませんでした。');
+            console.error('Firestore category drag order error:', error);
+          }
+        }
+      });
+
+      videoSortable = window.Sortable.create(grid, {
+        draggable: '.video-card',
+        filter: '.card-actions',
+        delay: 200,
+        delayOnTouchOnly: true,
+        touchStartThreshold: 4,
+        animation: 150,
+        onEnd: async () => {
+          const orderedIds = videoSortable.toArray();
+          const visibleVideos = getSortedVideos(activeCategory);
+          const orderSlots = visibleVideos.map(video => video.order);
+          try {
+            const batch = writeBatch(db);
+            orderedIds.forEach((id, index) => {
+              if (orderSlots[index] === undefined) return;
+              batch.update(doc(db, 'videos', id), { order: orderSlots[index], updatedAt: serverTimestamp() });
+            });
+            await batch.commit();
+          } catch (error) {
+            window.alert('動画の並び順を更新できませんでした。');
+            console.error('Firestore video drag order error:', error);
+          }
+        }
+      });
+    }
+
     function renderAdCards(adList) {
       return adList.map(ad => `
         <article class="pr-card">
@@ -478,6 +644,12 @@
       `).join('');
     }
 
+    function getSortedVideos(category = 'すべて') {
+      const visibleVideos = isAdmin ? videos : videos.filter(video => (video.status || 'published') === 'published');
+      const selectedVideos = category === 'すべて' ? visibleVideos : visibleVideos.filter(video => video.category === category);
+      return [...selectedVideos].sort((left, right) => Number(left.order) - Number(right.order) || left.id.localeCompare(right.id));
+    }
+
     function renderAdminAds() {
       if (!isAdmin) {
         adList.innerHTML = '';
@@ -489,7 +661,7 @@
           <article class="ad-item">
             <div>
               <h3>${escapeHtml(ad.title || '無題の広告')}</h3>
-              <p>表示位置: ${escapeHtml(ad.position || 'top')} / 表示件数: ${escapeHtml(ad.displayCount || '1')}</p>
+              <p>表示位置: ${escapeHtml(ad.position || 'top')} / 表示件数: ${escapeHtml(ad.displayCount || '1')} / ${ad.status === 'draft' ? '下書き' : '公開'}</p>
             </div>
             <div class="ad-item-actions">
               <button class="ad-item-button edit-ad" type="button" data-id="${escapeHtml(ad.id)}">編集</button>
@@ -508,7 +680,7 @@
     }
 
     function getAdsByPosition(position) {
-      const positionAds = ads.filter(ad => normalizeAdPosition(ad.position) === position);
+      const positionAds = ads.filter(ad => (ad.status || 'published') === 'published' && normalizeAdPosition(ad.position) === position);
       if (!positionAds.length) return [];
       const displayCount = positionAds[0].displayCount;
       return displayCount === 'all' ? positionAds : positionAds.slice(0, Number(displayCount) || 1);
@@ -540,10 +712,10 @@
       activeCategory = category;
       renderTabs();
       renderCategoryOptions();
-      const filtered = category === 'すべて' ? videos : videos.filter(video => video.category === category);
+      const filtered = getSortedVideos(category);
       count.textContent = `${filtered.length}本の動画`;
       const cards = filtered.length ? filtered.map((video, index) => `
-        <article class="video-card">
+        <article class="video-card" data-id="${escapeHtml(video.id)}">
           <a href="${escapeHtml(video.url)}" target="_blank" rel="noopener noreferrer">
             <div class="thumbnail-wrap">
               <img src="${escapeHtml(video.image)}" alt="${escapeHtml(video.title)}のサムネイル" loading="lazy">
@@ -552,9 +724,9 @@
             <div class="card-body">
               <span class="tag">${escapeHtml(video.category)}</span>
               <h3 class="video-title">${escapeHtml(video.title)}</h3>
-              <p class="channel">${escapeHtml(video.channelName || video.channel || '')}</p>
+              <p class="channel">${escapeHtml(video.channelName || video.channel || '')}${isAdmin && (video.status || 'published') === 'draft' ? ' ・ 下書き' : ''}</p>
               <p class="description">${escapeHtml(video.description)}</p>
-              ${isAdmin ? `<div class="card-actions"><button class="card-action edit" type="button" data-id="${video.id}">編集</button><button class="card-action delete" type="button" data-id="${video.id}">削除</button></div>` : ''}
+              ${isAdmin ? `<div class="card-actions"><button class="card-action move-video" type="button" aria-label="上へ" title="上へ" data-id="${video.id}" data-direction="-1">▲</button><button class="card-action move-video" type="button" aria-label="下へ" title="下へ" data-id="${video.id}" data-direction="1">▼</button><button class="card-action edit" type="button" data-id="${video.id}">編集</button><button class="card-action delete" type="button" data-id="${video.id}">削除</button></div>` : ''}
             </div>
           </a>
         </article>
@@ -562,6 +734,7 @@
       `).join('') : '<p class="empty">このカテゴリーの動画はありません。</p>';
       grid.innerHTML = cards;
       renderAd();
+      initializeSortables();
     }
 
     function setAdminMode(value) {
@@ -571,6 +744,8 @@
       if (!isAdmin) closeEditDialog();
       render(activeCategory);
       renderAdminAds();
+      renderCategoryManagement();
+      initializeSortables();
     }
 
     function resetVideoForm() {
@@ -587,7 +762,10 @@
     }
 
     onSnapshot(collection(db, 'videos'), snapshot => {
-      videos = snapshot.docs.map(videoDocument => ({ id: videoDocument.id, ...videoDocument.data() }));
+      videos = snapshot.docs.map((videoDocument, index) => {
+        const data = videoDocument.data();
+        return { id: videoDocument.id, status: data.status || 'published', ...data, order: Number.isFinite(Number(data.order)) ? Number(data.order) : index };
+      });
       render(activeCategory);
     }, error => {
       count.textContent = '動画を読み込めませんでした';
@@ -596,11 +774,32 @@
     });
 
     onSnapshot(collection(db, 'categories'), snapshot => {
-      const cloudCategories = snapshot.docs.map(categoryDocument => categoryDocument.data().name).filter(Boolean);
-      categories = [...new Set([...DEFAULT_CATEGORIES, ...cloudCategories])];
-      render(activeCategory);
+      firestoreCategoryRecords = snapshot.docs
+        .map(categoryDocument => ({
+          id: categoryDocument.id,
+          name: categoryDocument.data().name,
+          order: categoryDocument.data().order,
+          isInitial: INITIAL_CATEGORIES.some(category => category.id === categoryDocument.id),
+          exists: true
+        }))
+        .filter(category => category.name);
+      syncCategories();
     }, error => {
+      firestoreCategoryRecords = [];
+      syncCategories();
       console.error('Firestore categories listener error:', error);
+    });
+
+    onSnapshot(doc(db, 'settings', 'categoryConfig'), snapshot => {
+      const settings = snapshot.exists() ? snapshot.data() : {};
+      deletedInitialCategoryIds = Array.isArray(settings.deletedInitialCategoryIds) ? settings.deletedInitialCategoryIds : [];
+      categoryConfigReady = true;
+      syncCategories();
+    }, error => {
+      categoryConfigReady = true;
+      deletedInitialCategoryIds = [];
+      syncCategories();
+      console.error('Firestore category settings listener error:', error);
     });
 
     onSnapshot(doc(db, 'settings', 'adminConfig'), snapshot => {
@@ -614,6 +813,7 @@
     onSnapshot(collection(db, 'ads'), snapshot => {
       ads = snapshot.docs.map(adDocument => ({
         id: adDocument.id,
+        status: 'published',
         position: 'top',
         displayCount: '1',
         ...adDocument.data()
@@ -695,6 +895,7 @@
         return;
       }
       try {
+        const nextOrder = videos.length ? Math.max(...videos.map(video => Number(video.order) || 0)) + 1 : 0;
         await addDoc(collection(db, 'videos'), {
           category: formData.get('category'),
           title: formData.get('title').trim(),
@@ -702,6 +903,8 @@
           url,
           image: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
           description: formData.get('description').trim(),
+          status: formData.get('status') || 'published',
+          order: nextOrder,
           createdAt: serverTimestamp()
         });
         resetVideoForm();
@@ -727,7 +930,8 @@
         return;
       }
       try {
-        await addDoc(collection(db, 'categories'), { name: category, createdAt: serverTimestamp() });
+        const nextOrder = categoryRecords.length ? Math.max(...categoryRecords.map(item => Number(item.order) || 0)) + 1 : 0;
+        await addDoc(collection(db, 'categories'), { name: category, order: nextOrder, createdAt: serverTimestamp() });
         input.value = '';
         categoryMessage.textContent = 'カテゴリーをFirestoreに追加しました。';
         categoryMessage.style.color = 'var(--green-700)';
@@ -735,6 +939,80 @@
         categoryMessage.textContent = 'カテゴリーを保存できませんでした。';
         categoryMessage.style.color = '#b34b45';
         console.error('Firestore category add error:', error);
+      }
+    });
+
+    categoryList.addEventListener('click', async event => {
+      const button = event.target.closest('.category-item-button');
+      if (!button || !isAdmin) return;
+      const category = categoryRecords.find(item => item.id === button.dataset.id);
+      if (!category) return;
+
+      if (button.classList.contains('move-category')) {
+        const currentIndex = categoryRecords.findIndex(item => item.id === category.id);
+        const targetIndex = currentIndex + Number(button.dataset.direction);
+        if (targetIndex < 0 || targetIndex >= categoryRecords.length) return;
+        const neighbor = categoryRecords[targetIndex];
+        try {
+          const batch = writeBatch(db);
+          batch.set(doc(db, 'categories', category.id), { name: category.name, order: neighbor.order, ...(category.isInitial ? { isInitial: true } : {}) }, { merge: true });
+          batch.set(doc(db, 'categories', neighbor.id), { name: neighbor.name, order: category.order, ...(neighbor.isInitial ? { isInitial: true } : {}) }, { merge: true });
+          await batch.commit();
+        } catch (error) {
+          window.alert('カテゴリーの並び順を更新できませんでした。');
+          console.error('Firestore category order error:', error);
+        }
+        return;
+      }
+
+      if (button.classList.contains('delete-category')) {
+        if (!window.confirm(`「${category.name}」を削除しますか？`)) return;
+        try {
+          if (category.exists) await deleteDoc(doc(db, 'categories', category.id));
+          if (category.isInitial) {
+            deletedInitialCategoryIds = [...new Set([...deletedInitialCategoryIds, category.id])];
+            await setDoc(doc(db, 'settings', 'categoryConfig'), { deletedInitialCategoryIds, updatedAt: serverTimestamp() }, { merge: true });
+          }
+          if (activeCategory === category.name) render('すべて');
+        } catch (error) {
+          window.alert('カテゴリーを削除できませんでした。');
+          console.error('Firestore category delete error:', error);
+        }
+        return;
+      }
+
+      const nextName = window.prompt('新しいカテゴリー名を入力してください。', category.name);
+      if (nextName === null) return;
+      const trimmedName = nextName.trim();
+      if (!trimmedName) {
+        window.alert('カテゴリー名を入力してください。');
+        return;
+      }
+      if (categories.includes(trimmedName) && trimmedName !== category.name) {
+        window.alert('そのカテゴリー名はすでに存在します。');
+        return;
+      }
+
+      try {
+        const categoryData = { name: trimmedName, order: category.order, updatedAt: serverTimestamp(), ...(category.isInitial ? { isInitial: true } : {}) };
+        if (category.exists) {
+          await updateDoc(doc(db, 'categories', category.id), categoryData);
+        } else {
+          await setDoc(doc(db, 'categories', category.id), { ...categoryData, createdAt: serverTimestamp() }, { merge: true });
+        }
+        const videosSnapshot = await getDocs(query(collection(db, 'videos'), where('category', '==', category.name)));
+        const videoDocuments = videosSnapshot.docs;
+        for (let index = 0; index < videoDocuments.length; index += 500) {
+          const batch = writeBatch(db);
+          videoDocuments.slice(index, index + 500).forEach(videoDocument => {
+            batch.update(videoDocument.ref, { category: trimmedName, updatedAt: serverTimestamp() });
+          });
+          await batch.commit();
+        }
+        if (activeCategory === category.name) render(trimmedName);
+      } catch (error) {
+        window.alert('カテゴリー名を更新できませんでした。');
+        console.error('Firestore category rename error:', error);
       }
     });
 
@@ -749,6 +1027,7 @@
         imageUrl: formData.get('imageUrl'),
         position: formData.get('position'),
         displayCount: formData.get('displayCount'),
+        status: formData.get('status') || 'published',
         updatedAt: serverTimestamp()
       };
       try {
@@ -798,6 +1077,7 @@
       adForm.imageUrl.value = ad.imageUrl || '';
       adForm.position.value = ad.position || 'top';
       adForm.displayCount.value = ad.displayCount || '1';
+      adStatus.value = ad.status || 'published';
       adSubmitButton.textContent = 'PR広告を更新する';
       adCancelButton.hidden = false;
       adMessage.textContent = '広告内容を編集しています。';
@@ -818,6 +1098,23 @@
       event.stopPropagation();
       const video = videos.find(item => item.id === action.dataset.id);
       if (!video) return;
+      if (action.classList.contains('move-video')) {
+        const orderedVideos = getSortedVideos(activeCategory);
+        const currentIndex = orderedVideos.findIndex(item => item.id === video.id);
+        const targetIndex = currentIndex + Number(action.dataset.direction);
+        if (targetIndex < 0 || targetIndex >= orderedVideos.length) return;
+        const neighbor = orderedVideos[targetIndex];
+        try {
+          const batch = writeBatch(db);
+          batch.update(doc(db, 'videos', video.id), { order: neighbor.order, updatedAt: serverTimestamp() });
+          batch.update(doc(db, 'videos', neighbor.id), { order: video.order, updatedAt: serverTimestamp() });
+          await batch.commit();
+        } catch (error) {
+          window.alert('動画の並び順を更新できませんでした。');
+          console.error('Firestore video order error:', error);
+        }
+        return;
+      }
       if (action.classList.contains('delete')) {
         if (!window.confirm(`「${video.title}」を削除しますか？`)) return;
         try {
@@ -833,6 +1130,7 @@
       editForm.url.value = video.url;
       editChannelName.value = video.channelName || video.channel || '';
       editCategory.value = video.category;
+      editStatus.value = video.status || 'published';
       editForm.description.value = video.description;
       editDialog.showModal();
     });
@@ -857,6 +1155,7 @@
           url,
           channelName: formData.get('channelName').trim(),
           category: formData.get('category'),
+          status: formData.get('status') || 'published',
           description: formData.get('description').trim(),
           image: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
           updatedAt: serverTimestamp()
